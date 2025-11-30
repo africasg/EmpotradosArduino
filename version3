@@ -1,0 +1,51 @@
+#include <Adafruit_NeoPixel.h>
+
+#define LED_PIN 4      
+#define NUM_LEDS 64    
+#define PIR_PIN 5     
+
+Adafruit_NeoPixel leds(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(PIR_PIN, INPUT);
+  leds.begin();
+  leds.setBrightness(40);   
+  leds.show();
+}
+
+void loop() {
+
+  int mov = digitalRead(PIR_PIN);
+
+  if (mov == HIGH) {
+    Serial.println("Movimiento detectado");
+
+
+    efectoArcoiris(5);
+  } else {
+
+    apagado();
+  }
+
+  delay(100);
+}
+
+void apagado() {
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds.setPixelColor(i, 0);
+  }
+  leds.show();
+}
+
+void efectoArcoiris(uint8_t wait) {
+  for (long firstPixelHue = 0; firstPixelHue < 65536; firstPixelHue += 256) {
+    for (int i = 0; i < leds.numPixels(); i++) {
+      int pixelHue = firstPixelHue + (i * 65536L / leds.numPixels());
+      leds.setPixelColor(i, leds.gamma32(leds.ColorHSV(pixelHue)));
+    }
+    leds.show();
+    delay(wait);
+  }
+}
